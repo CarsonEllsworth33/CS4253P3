@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Oct 17 04:20:39 2019
-
+Errors and bugs:
+    running into set changing size during runtime, most likely due to a recursed variable says no bitch to our variable
 @author: carsonellsworth
 """
 from csp2 import *
@@ -10,25 +11,31 @@ from random import randint as rdint
 import math
 import threading
 
-def backtracking(assignment,CSP:csp,method=0,fw_check=False):
+def backtracking(assignment,CSP:csp,method=0,fw_check=False,counter=0):
     if (is_complete(assignment,CSP)):
         for key in assignment:
             v = assignment[key]
             print(v.ID,v.value)
         return assignment
     v = select_unassigned_variable(CSP,assignment,method)
-    
     for value in order_domain_values(v,assignment,CSP):
         if is_consistent(value,v,assignment):
             v.value = value
+            v.domain = set([value])
             assignment[v.ID] = v
             infer = {}
             infer = inferences(infer,assignment,v,value,CSP,fw_check)
             if (infer != "Failure"):
-                result = backtracking(assignment,CSP)
+                result = backtracking(assignment,CSP,method,fw_check,counter)
                 if(result != "Failure"):
                     return result
             if(v.ID in assignment):
+                if(v.inferences):
+                    for key in v.inferences:
+                        inf_var = v.inferences[inf_var]
+                        inf_var.domain = CSP.domain.copy()
+                        del v.inferences[key]
+                CSP.varset[v.ID].domain = CSP.domain.copy()
                 del assignment[v.ID]
         
     return "Failure"
@@ -41,12 +48,13 @@ def backtracking(assignment,CSP:csp,method=0,fw_check=False):
 
 def inferences(infer, assignment, var, value,CSP,fw_check):
     
-    if(not fw_check):
-        return True
-    return forward_check(infer, assignment, var, value,CSP)
+    if(fw_check):
+        return forward_check(infer, assignment, var, value,CSP)
+    return True
         
 
-def forward_check(infer, assignment, var, value,CSP):
+def forward_check(infer:dict, assignment, var, value,CSP):
+    '''
     infer[var.ID] = var
     for neighbors in assignment[var.ID].constraints:
         
@@ -62,7 +70,27 @@ def forward_check(infer, assignment, var, value,CSP):
                 if (len(flag) == 1):
                     return "Failure"
     return infer
-
+    '''
+    
+    #look at var constraints and reduce domain
+    for _,con_id in var.constraints:
+        print(var.ID,var.constraints)
+        print(assignment)
+        if(con_id not in assignment):
+            con_v = CSP.varset[con_id] #grab constraint variable from var
+            if(len(con_v.domain) > 1):   
+                try:
+                    con_v.domain.remove(var.value) #take away var.value from domain      
+                except(KeyError):
+                    pass
+                infer[con_id] = con_v
+            else:
+                return "Failure"
+            
+    return infer
+    
+    
+    
 def select_unassigned_variable(CSP:csp,assignment:set,method=0):
     """
     csp is the list of variables that are to be selected
@@ -92,7 +120,7 @@ def select_unassigned_variable(CSP:csp,assignment:set,method=0):
         low_var = None
         for variables in CSP.varset:
             v = CSP.varset[variables]
-            if(v not in assignment):
+            if(v.ID not in assignment):
                 dm_size = len(v.domain)
                 if(dm_size == 0):
                     return False
@@ -121,6 +149,31 @@ def select_unassigned_variable(CSP:csp,assignment:set,method=0):
                     low_var = v
         return low_var
     
+
+
+def ac3(CSP:csp):
+    arcs = CSP.constraint.copy()
+    while(arcs):
+        x1,x2 = arcs.pop()
+        X1,X2 = CSP.varset[x1],CSP.varset[x2]
+        if(revise(CSP,X1,X2)):
+            if (len(X1.domain) == 0):
+                return False
+            for xk in X1.constraints - X2.ID:
+                arcs.add(xk,X1.ID)
+                
+    return True
+        
+
+def revise(CSP:csp,X1:var,X2:var):
+    revised = False
+    for d1 in X1.domain:
+        for d2 in X2.domain:
+            if((X1.ID,X2.ID) in X1.constraints and CSP.diff(d1,d2)):
+                X1.domain.remove(d1)
+                revised = True
+    return revised
+
     
     
   
@@ -132,7 +185,7 @@ def order_domain_values(var,assignment,csp):
     """
     #right now it works only as just convert value and return
     #no special black magic yet
-    return list(var.domain)
+    return var.domain
 
 
 
@@ -229,13 +282,20 @@ def data_translator_sudoku(f:str):
 
 
 
+
+
+
+
+
+
+
 if(__name__ =="__main__"):
     import sys , time
-    print("running")
+    bt_counter = 0
     old_recurse_depth_limit = sys.getrecursionlimit()
     sys.setrecursionlimit(40000)
     map_color = data_translator_map('gcp.json')
-    map_domain = set(['r','g','b','y','bl'])
+    map_domain = set(['r','g','b','y'])
     map_varset = {}
     map_ass = {}
     for x in range(map_color["num_points"]):
@@ -264,43 +324,73 @@ if(__name__ =="__main__"):
     for i in range(len(sudoku_solver)):
         for j in range(len(sudoku_solver)):
             #if the sudoku element is not zero then add them to the assignment set
-            if(element != 0):
-                vid = cell_to_id(counter) #variable ID
+            if(sudoku_solver[i][j] != 0):
+                vid = cell_to_id(c) #variable ID
                 v = sudo_varset[vid]
                 v.value = sudoku_solver[i][j]
                 v.domain = set([v.value])
                 sudo_ass[v.ID] = v
-            counter += 1
+            c += 1
             
-    sudo_csp = csp(sudo_varset,sudo_domain,None)
+    sudo_csp = csp(sudo_varset,sudoku_domain,None)
     #variable constraints
     for v in sudo_varset:
         #make the row constraints
-        for name in sudoku_row(v.ID):
+        var = sudo_varset[v]
+        for name in sudoku_row(var.ID,sudo_col):
             #name is an ID name for a variable
-            if(v.ID == name or (v.ID,name) in v.constraints):
+            if(var.ID == name or (var.ID,name) in var.constraints):
                 pass
             else:
-                v.constraints.add((v.ID,name))
+                var.constraints.add((var.ID,name))
         
         #make column constraints
-        for name in sudoku_column(v.ID):
+        for name in sudoku_column(var.ID,sudo_row):
             #name is an ID name for a variable
-            if(v.ID == name or (v.ID,name) in v.constraints):
+            if(var.ID == name or (var.ID,name) in var.constraints):
                 pass
             else:
-                v.constraints.add((v.ID,name))
+                var.constraints.add((var.ID,name))
         
         #make grid constraints
         for name in sudo_subgrid:
-            pass
-    
-    
-    #variable constraints must be of the form (self.ID,other.ID)
-    for v in sudo_varset:
-        #if (sudo_varset[v].constraints
-        pass
-    #now backtracking can run
+            grid_val = id_to_cell(v)
+            if(grid_val < 9):
+                if ((v,name) not in var.constraints):
+                    var.constraints.add((v,name))
+            elif(grid_val < 18):
+                new_id = cell_to_id(id_to_cell(name) + 3)
+                if ((v,new_id) not in var.constraints):
+                    var.constraints.add((v,new_id))
+            elif(grid_val < 27):
+                new_id = cell_to_id(id_to_cell(name) + 6)
+                if ((v,new_id) not in var.constraints):
+                    var.constraints.add((v,new_id))
+            elif(grid_val < 36):
+                new_id = cell_to_id(id_to_cell(name) + 27)
+                if ((v,new_id) not in var.constraints):
+                    var.constraints.add((v,new_id))
+            elif(grid_val < 45):
+                new_id = cell_to_id(id_to_cell(name) + 30)
+                if ((v,new_id) not in var.constraints):
+                    var.constraints.add((v,new_id))
+            elif(grid_val < 54):
+                new_id = cell_to_id(id_to_cell(name) + 33)
+                if ((v,new_id) not in var.constraints):
+                    var.constraints.add((v,new_id))
+            elif(grid_val < 63):
+                new_id = cell_to_id(id_to_cell(name) + 54)
+                if ((v,new_id) not in var.constraints):
+                    var.constraints.add((v,new_id))
+            elif(grid_val < 72):
+                new_id = cell_to_id(id_to_cell(name) + 57)
+                if ((v,new_id) not in var.constraints):
+                    var.constraints.add((v,new_id))
+            elif(grid_val < 81):
+                new_id = cell_to_id(id_to_cell(name) + 60)
+                if ((v,new_id) not in var.constraints):
+                    var.constraints.add((v,new_id))
+        
     
     '''
     threading.stack_size(0xFFFFFFF) #
@@ -314,10 +404,24 @@ if(__name__ =="__main__"):
     '''
     
     start_time = time.time()
-    #print(backtracking(map_ass,map_csp,1,fw_check = False))
+    print(backtracking(map_ass,map_csp,1,fw_check = False,counter = bt_counter))
     end_time = time.time()
     fin_time = end_time - start_time
     print("time taken to run {}".format(fin_time))
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    ################## Start Backtracking ###################
+    #print(backtracking(sudo_ass,sudo_csp,1,fw_check = False))
     
     
     sys.setrecursionlimit(old_recurse_depth_limit)
