@@ -2,19 +2,21 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Oct 17 04:20:39 2019
+Working:
+    All var choice cases are working along with fw_check
 Errors and bugs:
-    running into set changing size during runtime, most likely due to a recursed variable says no bitch to our variable
+    AC3 is popping off every constraint, need to figure out why, something to do with revise
+    Sudoku is still failing every run
 @author: carsonellsworth
 """
-from csp2 import *
+from csp2 import csp,var
 from random import choice as rdch
 import math
-import threading
 
 ac_flag = False
 
 def backtracking(assignment,CSP:csp,method=0,fw_check=False,ac_3=False):
-    #print(len(assignment))
+    
     if (is_complete(assignment,CSP)):
         for key in assignment:
             v = assignment[key]
@@ -23,16 +25,16 @@ def backtracking(assignment,CSP:csp,method=0,fw_check=False,ac_3=False):
         return assignment
     v = select_unassigned_variable(CSP,assignment,method)
     #print("BT: var select:",v.ID,v.domain)
-    if(type(v) == type(None)):      
+    if(type(v) == type(None)):  
+        print(CSP.varset)
         return "Failure"
     for value in order_domain_values(v,assignment,CSP):
-        print("BT: var ID: {} value: {} domain: {}\n".format(v.ID,value,v.domain))
+        #print("BT: var ID: {} value: {} domain: {}\n".format(v.ID,value,v.domain))
         if is_consistent(value,v,assignment,CSP):
             v.domain = set([value])
             assignment[v.ID] = v
             infer = {}
             infer = inferences(infer,assignment,v,value,CSP,fw_check,ac_3)
-            #print(infer)
             if (infer != "Failure"):
                 result = backtracking(assignment,CSP,method,fw_check,ac_3)
                 if(result != "Failure"):
@@ -65,7 +67,6 @@ def select_unassigned_variable(CSP:csp,assignment:set,method=0):
     if(method == 0):
         key_lst = list(CSP.varset.keys())
         v = CSP.varset[rdch(key_lst)]
-        #fw check is getting stuck in while loop
         while(v in assignment or len(v.domain) < 1):
             v = CSP.varset[rdch(list(CSP.varset.keys()))]
         return v
@@ -121,11 +122,10 @@ def inferences(infer, assignment, var, value,CSP,fw_check,ac_3):
     global ac_flag
     if(ac_3 and ac_flag == False):
         #print("running AC3")
+        print("CSP constraint:",CSP.constraint)
         ac3(CSP)
-        redef_constraints(CSP)
-        #print(CSP.constraint,'\n')
-        for vkey in CSP.varset:
-            print(CSP.varset[vkey].ID,CSP.varset[vkey].constraints,'\n')
+        print("CSP constraint:",CSP.constraint)
+        redef_constraints(CSP)  
         ac_flag = True
     if(fw_check):
         infer = forward_check(infer, assignment, var, value,CSP)
@@ -161,12 +161,17 @@ def ac3(CSP:csp):
         x1,x2 = arcs.pop()
         X1 = CSP.varset[x1]
         X2 = CSP.varset[x2]
+        #print("revising")
         if(revise(CSP,X1,X2)):
-            if (len(X1.domain) == 1):
+            if (len(X1.domain) == 0):
                 return False
             
             for _,xk in X1.constraints - set([(X1.ID,X2.ID)]):
-                arcs.add((xk,X1.ID))               
+                #print("adding arc:",(xk,X1.ID))
+                arcs.add((xk,X1.ID)) 
+        else:
+            #print("no revising needed")
+            pass
     return True
         
 
@@ -175,12 +180,17 @@ def revise(CSP:csp,X1:var,X2:var):
     revised = False
     no_del = False
     removals = set([])
+    #print(X1.ID,X1.domain,X2.ID,X2.domain)
+    
     for d1 in X1.domain:
+        
         for d2 in X2.domain:
             if((X1.ID,X2.ID) in X1.constraints and CSP.diff(d1,d2)):
+                #print("{} is diff {}: {}".format(d1,d2,CSP.diff(d1,d2)))
                 no_del = True
-        if(no_del):
+        if(not no_del):
             removals.add(d1)
+            #print("the removal set {}".format(removals))
             revised = True
     X1.domain = X1.domain - removals
     return revised
@@ -404,12 +414,12 @@ if(__name__ =="__main__"):
     start_time = time.time()
     #print(map_csp.varset)
     #Flag to determine if ac_3 has ran already
-    print(backtracking(map_ass,map_csp,2,fw_check = True,ac_3=False))
+    print(backtracking(map_ass,map_csp,1,fw_check = True,ac_3=False))
     end_time = time.time()
     fin_time = end_time - start_time
     #print("time taken to run {}".format(fin_time))
     #print(sudo_csp.varset)
-    #print(backtracking(sudo_ass,sudo_csp,1,fw_check=False,ac_3=False))
+    #print(backtracking(sudo_ass,sudo_csp,1,fw_check=True,ac_3=False))
     
     
     
