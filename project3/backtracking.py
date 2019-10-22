@@ -7,87 +7,46 @@ Errors and bugs:
 @author: carsonellsworth
 """
 from csp2 import *
-from random import randint as rdint
+from random import choice as rdch
 import math
 import threading
 
-def backtracking(assignment,CSP:csp,method=0,fw_check=False,counter=0):
+ac_flag = False
+
+def backtracking(assignment,CSP:csp,method=0,fw_check=False,ac_3=False):
+    #print(len(assignment))
     if (is_complete(assignment,CSP)):
         for key in assignment:
             v = assignment[key]
-            print(v.ID,v.value)
+            print(v.ID,v.domain)
+        print(len(assignment))
         return assignment
     v = select_unassigned_variable(CSP,assignment,method)
+    #print("BT: var select:",v.ID,v.domain)
+    if(type(v) == type(None)):      
+        return "Failure"
     for value in order_domain_values(v,assignment,CSP):
-        if is_consistent(value,v,assignment):
-            v.value = value
+        print("BT: var ID: {} value: {} domain: {}\n".format(v.ID,value,v.domain))
+        if is_consistent(value,v,assignment,CSP):
             v.domain = set([value])
             assignment[v.ID] = v
             infer = {}
-            infer = inferences(infer,assignment,v,value,CSP,fw_check)
+            infer = inferences(infer,assignment,v,value,CSP,fw_check,ac_3)
+            #print(infer)
             if (infer != "Failure"):
-                result = backtracking(assignment,CSP,method,fw_check,counter)
+                result = backtracking(assignment,CSP,method,fw_check,ac_3)
                 if(result != "Failure"):
                     return result
             if(v.ID in assignment):
                 if(v.inferences):
                     for key in v.inferences:
-                        inf_var = v.inferences[inf_var]
+                        inf_var = v.inferences[key]
                         inf_var.domain = CSP.domain.copy()
-                        del v.inferences[key]
-                CSP.varset[v.ID].domain = CSP.domain.copy()
-                del assignment[v.ID]
-        
+                    v.inferences.clear()
+                v.domain = CSP.domain.copy()
+                assignment.pop(v.ID)
+            
     return "Failure"
-
-
-
-
-
-
-
-def inferences(infer, assignment, var, value,CSP,fw_check):
-    
-    if(fw_check):
-        return forward_check(infer, assignment, var, value,CSP)
-    return True
-        
-
-def forward_check(infer:dict, assignment, var, value,CSP):
-    '''
-    infer[var.ID] = var
-    for neighbors in assignment[var.ID].constraints:
-        
-        if (neighbors[1] not in assignment and not CSP.varset[neighbors[1]].domain):
-            #neighbors not assigned and still have available domain
-            if (len(CSP.varset[neighbors[1]].domain) == 1):
-                return "Failure"
-            
-            #delete from domain
-            CSP.varset[neighbors[1]].domain.remove(value)
-            if (len(CSP.varset[neighbors[1]].domain) == 1):
-                flag = forward_check(infer,assignment,CSP.varset[neighbor[1]],CSP.varset[neighbor[1]].domain,CSP)
-                if (len(flag) == 1):
-                    return "Failure"
-    return infer
-    '''
-    
-    #look at var constraints and reduce domain
-    for _,con_id in var.constraints:
-        print(var.ID,var.constraints)
-        print(assignment)
-        if(con_id not in assignment):
-            con_v = CSP.varset[con_id] #grab constraint variable from var
-            if(len(con_v.domain) > 1):   
-                try:
-                    con_v.domain.remove(var.value) #take away var.value from domain      
-                except(KeyError):
-                    pass
-                infer[con_id] = con_v
-            else:
-                return "Failure"
-            
-    return infer
     
     
     
@@ -102,31 +61,33 @@ def select_unassigned_variable(CSP:csp,assignment:set,method=0):
     if(method not in range(3)):
         return "method out of bounds"
     
+   
     if(method == 0):
-        r = rdint(0,len(CSP.varset)-1)
-        v = CSP.varset[r]
-        #v = CSP.varset.popitem()[1]
-        #CSP.varset[v.ID] = v #return old to dict
-        while(v in assignment):
-            r = rdint(0,len(CSP.varset)-1)
-            v = CSP.varset[r]
-            #v = CSP.varset.popitem()[1] #grab new
-            #CSP.varset[v.ID] = v #return new to dict
+        key_lst = list(CSP.varset.keys())
+        v = CSP.varset[rdch(key_lst)]
+        #fw check is getting stuck in while loop
+        while(v in assignment or len(v.domain) < 1):
+            v = CSP.varset[rdch(list(CSP.varset.keys()))]
         return v
-    
+        
     elif(method == 1):
         #1:minimum-remaining value
         least_domain = math.inf
         low_var = None
         for variables in CSP.varset:
             v = CSP.varset[variables]
-            if(v.ID not in assignment):
-                dm_size = len(v.domain)
-                if(dm_size == 0):
-                    return False
+            if(v == None):
+                print("Nonetype err:",CSP.varset)
+            dm_size = len(v.domain)
+            if(v.ID not in assignment and dm_size >= 1):
+                
                 if(dm_size < least_domain):
                     least_domain = dm_size
+                    if(dm_size == 1):
+                        return v
                     low_var = v
+            if(dm_size == 0):
+                return None
         return low_var
                 
     elif(method == 2):
@@ -137,41 +98,91 @@ def select_unassigned_variable(CSP:csp,assignment:set,method=0):
         low_var = None
         for variables in CSP.varset:
             v = CSP.varset[variables]
-            if(v not in assignment):
-                dm_size = len(v.domain)
-                if(dm_size == 0):
-                    return False
+            if(v == None):
+                print("Nonetype err:",CSP.varset)
+            dm_size = len(v.domain)
+            if(v.ID not in assignment and dm_size >= 1):
+                
                 if(dm_size < least_domain):
                     least_domain = dm_size
+                    if(dm_size == 1):
+                        return v
                     low_var = v
                 elif(dm_size == least_domain and len(v.constraints) > len(low_var.constraints)):
                     least_domain = dm_size
                     low_var = v
+            if(dm_size == 0):
+                return None
         return low_var
     
 
 
-def ac3(CSP:csp):
-    arcs = CSP.constraint.copy()
-    while(arcs):
-        x1,x2 = arcs.pop()
-        X1,X2 = CSP.varset[x1],CSP.varset[x2]
-        if(revise(CSP,X1,X2)):
-            if (len(X1.domain) == 0):
-                return False
-            for xk in X1.constraints - X2.ID:
-                arcs.add(xk,X1.ID)
-                
+def inferences(infer, assignment, var, value,CSP,fw_check,ac_3):
+    global ac_flag
+    if(ac_3 and ac_flag == False):
+        #print("running AC3")
+        ac3(CSP)
+        redef_constraints(CSP)
+        #print(CSP.constraint,'\n')
+        for vkey in CSP.varset:
+            print(CSP.varset[vkey].ID,CSP.varset[vkey].constraints,'\n')
+        ac_flag = True
+    if(fw_check):
+        infer = forward_check(infer, assignment, var, value,CSP)
+        return infer
     return True
         
 
+
+def forward_check(infer:dict, assignment, var, value,CSP):
+    #look at var constraints and reduce domain
+    for _,con_id in var.constraints:
+        
+        if(con_id not in assignment):
+            #grab constraint variable from var
+            con_v = CSP.varset[con_id]
+            if(var.domain <= con_v.domain):
+                if(len(con_v.domain) > 1): 
+                    #take away var.value from domain
+                    #print("FC: having {} take {} away from {} {}\n".format(var.ID,var.domain,con_v.ID,con_v.domain))
+                    con_v.domain = con_v.domain - var.domain       
+                    infer[con_id] = con_v
+                    var.inferences[con_id] = con_v
+                else:
+                    return "Failure"
+            
+    return infer
+
+
+
+def ac3(CSP:csp):
+    arcs = CSP.constraint
+    while(arcs):
+        x1,x2 = arcs.pop()
+        X1 = CSP.varset[x1]
+        X2 = CSP.varset[x2]
+        if(revise(CSP,X1,X2)):
+            if (len(X1.domain) == 1):
+                return False
+            
+            for _,xk in X1.constraints - set([(X1.ID,X2.ID)]):
+                arcs.add((xk,X1.ID))               
+    return True
+        
+
+
 def revise(CSP:csp,X1:var,X2:var):
     revised = False
+    no_del = False
+    removals = set([])
     for d1 in X1.domain:
         for d2 in X2.domain:
             if((X1.ID,X2.ID) in X1.constraints and CSP.diff(d1,d2)):
-                X1.domain.remove(d1)
-                revised = True
+                no_del = True
+        if(no_del):
+            removals.add(d1)
+            revised = True
+    X1.domain = X1.domain - removals
     return revised
 
     
@@ -186,40 +197,37 @@ def order_domain_values(var,assignment,csp):
     #right now it works only as just convert value and return
     #no special black magic yet
     return var.domain
+    
+
+def redef_constraints(CSP:csp):
+    for vkey in CSP.varset:
+        v = CSP.varset[vkey]
+        v.constraints.clear()
+        for vid,oid in CSP.constraint:
+            if(v.ID == vid):
+                v.constraints.add((vid,oid))
+                
+        
 
 
 
-
-
-def is_consistent(value,v,assignment):
-    for item in v.constraints:
-        try:
-            if(assignment[item[1]].value == value):#item[1] is the key for var constraints
-                return False
-        except(KeyError):
-            pass
-    return True
+def is_consistent(value,v,assignment,CSP:csp):
+    #must look through constraints
+    if(v.ID not in assignment):
+        for ID,item in v.constraints:
+            if(item in assignment):
+                o = assignment[item]
+                #print("IC: ID: {} {} | item {} {}".format(ID,value,item,o.domain))
+                is_diff = CSP.diff(set([value]),o.domain)
+                #print(is_diff)
+                if(not is_diff):#item[1] is the key for var constraints
+                    return False
+        return True
+    return False
 
     
 def is_complete(assignment,CSP:csp):
-    '''if(assignment):
-        try:
-            for key in assignment:
-                v = assignment[key]
-                if(v.value == None):
-                    return False
-                for constr in CSP.constraint:
-                    if(v.ID == constr[0]):    
-                        index = constr[1]
-                        v2 = assignment[index]
-                        if(v.value == v2.value):
-                            return False
-            return True
-        except(KeyError):
-            pass
-    else:
-        return False'''
-    return(set(assignment.keys()) == set(CSP.varset.keys()))
+    return set(assignment.keys()) == set(CSP.varset.keys())
     
     
     
@@ -299,7 +307,7 @@ if(__name__ =="__main__"):
     map_varset = {}
     map_ass = {}
     for x in range(map_color["num_points"]):
-       map_varset[x] = var(x,None,map_domain)
+       map_varset[x] = var(x,None,map_domain.copy())
     map_csp = csp(map_varset,map_domain,map_color["edges"])
     map_csp.create_var_constraint()
     
@@ -316,7 +324,7 @@ if(__name__ =="__main__"):
     #creating the variables with proper cell names a1-i9
     for letter in sudo_row:
         for num in sudo_col:
-            sudo_varset[letter+num] = var(ID=letter+num,value = None,domain = sudoku_domain)
+            sudo_varset[letter+num] = var(ID=letter+num,value = None,domain = sudoku_domain.copy())
     
     
     #already set variables
@@ -327,9 +335,10 @@ if(__name__ =="__main__"):
             if(sudoku_solver[i][j] != 0):
                 vid = cell_to_id(c) #variable ID
                 v = sudo_varset[vid]
-                v.value = sudoku_solver[i][j]
-                v.domain = set([v.value])
+                v.domain.clear()
+                v.domain = set([sudoku_solver[i][j]])
                 sudo_ass[v.ID] = v
+                #print("v {} domain:".format(v.ID),v.domain)
             c += 1
             
     sudo_csp = csp(sudo_varset,sudoku_domain,None)
@@ -391,25 +400,16 @@ if(__name__ =="__main__"):
                 if ((v,new_id) not in var.constraints):
                     var.constraints.add((v,new_id))
         
-    
-    '''
-    threading.stack_size(0xFFFFFFF) #
-    t = threading.Thread(target=backtracking(assignment,map_csp,2,fw_check=False))
+    sudo_csp.create_csp_constraint()
     start_time = time.time()
-    t.start()
-    t.join()
+    #print(map_csp.varset)
+    #Flag to determine if ac_3 has ran already
+    print(backtracking(map_ass,map_csp,2,fw_check = True,ac_3=False))
     end_time = time.time()
     fin_time = end_time - start_time
-    print("time taken to run {}".format(fin_time))
-    '''
-    
-    start_time = time.time()
-    print(backtracking(map_ass,map_csp,1,fw_check = False,counter = bt_counter))
-    end_time = time.time()
-    fin_time = end_time - start_time
-    print("time taken to run {}".format(fin_time))
-    
-    
+    #print("time taken to run {}".format(fin_time))
+    #print(sudo_csp.varset)
+    #print(backtracking(sudo_ass,sudo_csp,1,fw_check=False,ac_3=False))
     
     
     
@@ -422,6 +422,5 @@ if(__name__ =="__main__"):
     
     ################## Start Backtracking ###################
     #print(backtracking(sudo_ass,sudo_csp,1,fw_check = False))
-    
     
     sys.setrecursionlimit(old_recurse_depth_limit)

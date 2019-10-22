@@ -8,13 +8,13 @@ Created on Thu Oct 17 03:50:11 2019
 class var():
     def __init__(self,ID,value,domain):
         self.ID = ID
-        self.value = value
+        #self.value = value
         self.domain = domain
         self.constraints = set([])
         self.inferences = {}
         
     def __repr__(self):
-        return "{} {} {}".format(self.ID,self.value,self.domain)
+        return "{}".format(self.domain)
     
         
 class csp():
@@ -36,8 +36,10 @@ class csp():
                 if (x is not y):
                     self.constraint.add((x,y))
                     
-    def diff(self,X1,X2):
-        return X1 != X2
+    def diff(self,i,j):
+        boo = i != j
+        #print("diff return: {}".format(boo))
+        return boo
     
     def map_edge_constraint(self,C):
         for a,b in C:
