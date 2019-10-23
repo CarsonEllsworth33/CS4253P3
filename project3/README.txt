@@ -12,12 +12,12 @@ step 2) The parameters for running are as follows
         e.g. 20 will generate a size 20 graph for each new test
     $3) the amount of free cells left open by the sudoku generator
         e.g. 30 will create a sudoku puzzle with 30 free cells for each test
-    $4) the search type
-        0 for random
-        1 for MRV
-        2 for MRV with highest Domain
-    $5) forward checking enable
+    $4) forward checking enable
         0 for False
         1 for True
-    $6) ac3 algorithm run count: the maximum amount of times the ac3 algorithm is allowed to run in the program
+    $5) ac3 algorithm run count: the maximum amount of times the ac3 algorithm is allowed to run in the program
         e.g. 5 allows the ac3 algorithm to run at maximum 5 times in the program
+
+step 3) run the program
+    e.g. ./p3runner.sh 10 50 20 1 0
+        run 10 tests with map size of 50 nodes 20 free sudoku cells with all three searches using forward checking but no AC3 runs

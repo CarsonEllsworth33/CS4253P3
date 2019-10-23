@@ -1,0 +1,67 @@
+0.0014421939849853516,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,20
+0.0016739368438720703,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,20
+0.0015549659729003906,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,20
+0.0015151500701904297,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,20
+0.0018429756164550781,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,20
+0.0011768341064453125,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,20
+0.0020449161529541016,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,20
+0.001979351043701172,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,20
+0.002259969711303711,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,20
+0.0022759437561035156,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,20
+0.019217729568481445,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,30
+0.0019268989562988281,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,30
+0.0036830902099609375,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,30
+0.0024480819702148438,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,30
+0.006685972213745117,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,30
+0.07844686508178711,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,30
+0.0019299983978271484,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,30
+0.00541996955871582,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,30
+0.0035622119903564453,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,30
+0.0019428730010986328,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,30
+2.3268239498138428,s,random search,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.005597114562988281,s,MRV,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.0028209686279296875,s,MRV,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.008971929550170898,s,MRV,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.08969902992248535,s,MRV,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.003906965255737305,s,MRV,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.01421809196472168,s,MRV,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.0036230087280273438,s,MRV,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.00370025634765625,s,MRV,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.003123044967651367,s,MRV,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.0026199817657470703,s,MRV,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.0035638809204101562,s,MRV,search method,fw_checking,True,ac3_count_lim,0,initial empty cells,40
+0.013469934463500977,s,MRV,search method,fw_checking,True,ac3_count_lim,0,initial empty cells,40
+0.010233879089355469,s,MRV,search method,fw_checking,True,ac3_count_lim,0,initial empty cells,40
+0.0033762454986572266,s,MRV,search method,fw_checking,True,ac3_count_lim,0,initial empty cells,40
+0.0034461021423339844,s,MRV,search method,fw_checking,True,ac3_count_lim,0,initial empty cells,40
+0.009769201278686523,s,MRV,search method,fw_checking,True,ac3_count_lim,0,initial empty cells,40
+0.015105009078979492,s,MRV,search method,fw_checking,True,ac3_count_lim,0,initial empty cells,40
+0.015704631805419922,s,MRV,search method,fw_checking,True,ac3_count_lim,0,initial empty cells,40
+0.011446952819824219,s,MRV,search method,fw_checking,True,ac3_count_lim,0,initial empty cells,40
+0.030757904052734375,s,MRV,search method,fw_checking,True,ac3_count_lim,0,initial empty cells,40
+0.0040280818939208984,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.003838777542114258,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.014492988586425781,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.005764961242675781,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.01119685173034668,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.021476268768310547,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.043029069900512695,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.004167795181274414,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.005615949630737305,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.004502058029174805,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,40
+0.517643928527832,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,60
+0.015866756439208984,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,60
+0.010834217071533203,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,60
+0.14499282836914062,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,60
+0.032772064208984375,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,60
+0.13524580001831055,s,MRV w/ highest Degree,search method,fw_checking,False,ac3_count_lim,0,initial empty cells,60
+0.5231401920318604,s,MRV w/ highest Degree,search method,fw_checking,True,ac3_count_lim,2,initial empty cells,50
+0.024548053741455078,s,MRV w/ highest Degree,search method,fw_checking,True,ac3_count_lim,2,initial empty cells,50
+0.9160020351409912,s,MRV w/ highest Degree,search method,fw_checking,True,ac3_count_lim,2,initial empty cells,50
+0.8348608016967773,s,MRV w/ highest Degree,search method,fw_checking,True,ac3_count_lim,2,initial empty cells,50
+0.12312102317810059,s,MRV w/ highest Degree,search method,fw_checking,True,ac3_count_lim,2,initial empty cells,50
+0.06034708023071289,s,MRV w/ highest Degree,search method,fw_checking,True,ac3_count_lim,2,initial empty cells,50
+0.02655172348022461,s,MRV w/ highest Degree,search method,fw_checking,True,ac3_count_lim,2,initial empty cells,50
+1.4218320846557617,s,MRV w/ highest Degree,search method,fw_checking,True,ac3_count_lim,2,initial empty cells,50
+0.05031704902648926,s,MRV w/ highest Degree,search method,fw_checking,True,ac3_count_lim,2,initial empty cells,50
+0.7137830257415771,s,MRV w/ highest Degree,search method,fw_checking,True,ac3_count_lim,2,initial empty cells,50
