@@ -91,8 +91,10 @@ def gen(num_points=100):
 
 def draw(x, lines):
     try:
-        response = input("Would you like to view the network? [Y/n] ")
-        if response.lower() == 'n':
+        #comment out to automate the creation process
+        #response = input("Would you like to view the network? [Y/n] ")
+        #if response.lower() == 'n':
+        if True: #this is used for automating the testing process, and so I won't have to manually give a no response
             return
         import pygame
     except ImportError:
